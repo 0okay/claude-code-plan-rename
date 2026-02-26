@@ -1,0 +1,44 @@
+# 敏感文件（绝对不提交）
+.credentials.json
+stats-cache.json
+
+# 缓存与临时文件
+cache/
+debug/
+telemetry/
+statsig/
+paste-cache/
+image/
+shell-snapshots/
+file-history/
+backup/
+backups/
+plugins/cache/
+usage-data/
+ccline/
+ide/
+todos/
+tasks/
+plans/
+
+# Node 依赖（各平台重新安装）
+skills/*/node_modules/
+skills/.claude/
+skills/**/.cache/
+
+# 其他本地文件
+downloads/
+Claudeception/
+statusline-pro/
+hookify.docx-read.local.md
+
+# 历史文件
+# history.jsonl
+
+# 仅保留记忆文件，排除对话历史
+projects/*/
+!projects/C--Users-Administrator/
+projects/C--Users-Administrator/*/
+!projects/C--Users-Administrator/memory/
+# skills 有独立 GitHub 仓库（Ookay-skills），不纳入本仓库
+skills/

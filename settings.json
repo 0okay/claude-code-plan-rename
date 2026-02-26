@@ -1,0 +1,57 @@
+{
+  "env": {
+    "API_TIMEOUT_MS": "3000000",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "Bash(cmd /c \"del:*)",
+      "mcp__open-websearch__search",
+      "Minimax-coding-plan-mcp",
+      "Bash(ls:*)",
+      "Bash(agent-browser:*)",
+      "Bash(where agent-browser:*)",
+      "Bash(which agent-browser:*)",
+      "Bash(pandoc:*)",
+      "Bash(dir:*)",
+      "Bash(python:*)",
+      "Bash(findstr:*)",
+      "Bash(iconv:*)"
+    ],
+    "defaultMode": "default"
+  },
+  "model": "sonnet",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\Users\\Administrator\\.claude\\hooks\\claudeception-activator.cmd"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -Command \"Write-Output 'prompt'\""
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "powershell -Command \"node 'C:\\Users\\Administrator\\.claude\\plugins\\cache\\claude-hud\\claude-hud\\0.0.1\\dist\\index.js'\""
+  },
+  "enabledPlugins": {
+    "claude-hud@claude-hud": true,
+    "hookify": true,
+    "example-skills@anthropic-agent-skills": true
+  },
+  "language": "中文"
+}
