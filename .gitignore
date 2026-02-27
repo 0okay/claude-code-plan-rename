@@ -40,5 +40,8 @@ projects/*/
 !projects/C--Users-Administrator/
 projects/C--Users-Administrator/*/
 !projects/C--Users-Administrator/memory/
+!projects/E--QvQ-OneDrive---2077-YAYI-2026-3-------/
+projects/E--QvQ-OneDrive---2077-YAYI-2026-3-------/*/
+!projects/E--QvQ-OneDrive---2077-YAYI-2026-3-------/memory/
 # skills 有独立 GitHub 仓库（Ookay-skills），不纳入本仓库
 skills/
