@@ -41,8 +41,8 @@ Claude 写入计划文件时会调用 `Write` 工具。Claude Code 的 hook 机�
 
 1. Hook 从 stdin 的 `tool_input.content` 中直接读取刚写入的内容
 2. 提取第一个 H1 标题（`# 标题`）
-3. 以标题 + 日期为新文件名，用 `os.rename()` 重命名
-4. 在原随机路径创建软链接，保证 Claude 后续引用不报错
+3. 以标题 + 日期 + 版本号为新文件名，用 `os.rename()` 重命名
+4. 在原随机路径创建链接，保证 Claude 后续引用不报错
 
 **关键优势：零 token 消耗** —— 整个过程是纯本地 Python 脚本，不调用任何 LLM 或网络请求。`os.rename()` 是 OS 级目录项修改，等同于 `mv`，不复制文件内容。
 
@@ -59,7 +59,9 @@ Claude 写入计划文件时会调用 `Write` 工具。Claude Code 的 hook 机�
 
 ---
 
-## settings.json 关键配置
+## 安装
+
+### macOS
 
 ```json
 {
@@ -80,8 +82,32 @@ Claude 写入计划文件时会调用 `Write` 工具。Claude Code 的 hook 机�
 }
 ```
 
-- `plansDirectory: ".plans"` — 计划文件存入项目根目录的 `.plans/` 子目录，不污染项目根目录
-- `PostToolUse` + `matcher: "Write"` — 仅在 Write 工具调用后触发
+将 `plan-rename.py` 复制到 `~/.claude/hooks/plan-rename.py`。
+
+### Windows
+
+```json
+{
+  "plansDirectory": ".plans",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/<你的用户名>/.claude/hooks/plan-rename.py"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+将 `plan-rename.py` 复制到 `C:\Users\<你的用户名>\.claude\hooks\plan-rename.py`。
+
+> **Windows 注意：** command 路径必须使用正斜杠（`/`）。Claude Code 在 Windows 下通过 bash 执行 hook 命令，反斜杠会被 bash 当作转义符处理，导致路径损坏。
 
 ---
 
@@ -90,7 +116,7 @@ Claude 写入计划文件时会调用 `Write` 工具。Claude Code 的 hook 机�
 ```python
 # 1. 过滤条件（不符合则直接退出）
 - tool_name 必须是 "Write"
-- file_path 必须包含 "/.plans/"
+- file_path 的路径组成部分必须包含 ".plans"（用 pathlib.Path.parts 跨平台判断）
 - 文件名必须匹配随机三词模式：^[a-z]+(-[a-z]+){2}\.md$
 - 文件路径不能是软链接（避免重复处理）
 
@@ -99,15 +125,18 @@ Claude 写入计划文件时会调用 `Write` 工具。Claude Code 的 hook 机�
 
 # 3. 构造新文件名
 去除文件系统不安全字符（/\:*?"<>|），保留中文等 Unicode 字符
-格式：{标题}-{YYYYMMDD}.md
-例如：实现用户认证模块-20260223.md
+格式：{标题}-{YYYYMMDD}-v{N}.md
+例如：实现用户认证模块-20260228-v1.md
 
-# 4. 冲突处理
-若目标文件已存在，自动追加 -2、-3 …
+# 4. 版本号冲突处理
+始终追加 -v1，若已存在则递增：-v2、-v3 …
 
-# 5. 重命名 + 软链接
+# 5. 重命名 + 链接
 os.rename(原路径, 新路径)
-os.symlink(新文件名, 原路径)   ← 软链接保证 Claude 引用不断
+# macOS：os.symlink()（软链接）
+# Windows：先尝试 os.symlink()，需要开发者模式；
+#          降级到 os.link()（硬链接，无需特殊权限）；
+#          两者均失败则静默跳过（重命名已完成，不影响结果）
 ```
 
 ---
@@ -116,9 +145,9 @@ os.symlink(新文件名, 原路径)   ← 软链接保证 Claude 引用不断
 
 | 之前 | 之后 |
 |------|------|
-| `fizzy-giggling-cake.md` | `实现用户认证模块-20260223.md` |
-| `composed-seeking-sonnet.md` | `修复支付流程-20260223.md` |
-| `eager-launching-kernighan.md` | `重构数据库层-20260201.md` |
+| `fizzy-giggling-cake.md` | `实现用户认证模块-20260228-v1.md` |
+| `composed-seeking-sonnet.md` | `修复支付流程-20260228-v1.md` |
+| `eager-launching-kernighan.md` | `重构数据库层-20260228-v1.md` |
 
 ---
 
@@ -126,15 +155,26 @@ os.symlink(新文件名, 原路径)   ← 软链接保证 Claude 引用不断
 
 | 用例 | 行为 |
 |------|------|
-| 中文标题 | 保留中文，追加日期 |
+| 中文标题 | 保留中文，追加日期和版本号 |
 | 英文标题 | 保留原大小写，空格转连字符 |
 | 无 H1 标题 | 保留原随机名，不触发重命名 |
 | 非 `.plans/` 路径 | 不触发 |
-| 同天同名冲突 | 自动加 `-2`、`-3` 后缀 |
+| 同天同名冲突 | 自动递增版本号：`-v2`、`-v3` |
+
+---
+
+## 平台差异汇总
+
+| | macOS | Windows |
+|---|---|---|
+| Python 命令 | `python3` | `python` |
+| 命令路径格式 | `~/.claude/hooks/...` | `C:/Users/...`（正斜杠） |
+| 路径判断 | `pathlib.Path.parts` | 同左（跨平台） |
+| 软链接 | `os.symlink()` 原生支持 | 需开发者模式，自动降级硬链接 |
+| 隐藏 `.plans` 目录 | `Command + Shift + .` | 默认可见 |
 
 ---
 
 ## 注意事项
 
 - 建议将 `.plans` 加入项目的 `.gitignore`，避免计划文件进入版本库
-- 访达中查看 `.plans` 隐藏目录：`Command + Shift + .`
