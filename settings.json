@@ -23,22 +23,47 @@
   },
   "model": "sonnet",
   "hooks": {
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "C:\\Users\\Administrator\\.claude\\hooks\\claudeception-activator.cmd"
-          }
-        ]
-      }
-    ],
     "PermissionRequest": [
       {
         "hooks": [
           {
             "type": "command",
             "command": "powershell -ExecutionPolicy Bypass -Command \"Write-Output 'prompt'\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"open('C:/Users/Administrator/AppData/Local/Temp/hook-test.txt','a').write('STOP_FIRED\\n')\""
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\Users\\Administrator\\.claude\\hooks\\claudeception-activator.cmd"
           }
         ]
       }
@@ -50,8 +75,10 @@
   },
   "enabledPlugins": {
     "claude-hud@claude-hud": true,
-    "hookify": true,
-    "example-skills@anthropic-agent-skills": true
+    "example-skills@anthropic-agent-skills": true,
+    "hookify": true
   },
-  "language": "中文"
+  "language": "中文",
+  "plansDirectory": ".plans",
+  "skipDangerousModePermissionPrompt": true
 }
