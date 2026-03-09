@@ -1,0 +1,19 @@
+{
+  "lineLayout": "expanded",
+  "display": {
+    "showModel": true,
+    "showContextBar": true,
+    "showProject": true,
+    "showConfigCounts": true,
+    "showDuration": true,
+    "showTools": true,
+    "showAgents": true,
+    "showTodos": true,
+    "showUsage": false,
+    "showTokenBreakdown": true
+  },
+  "gitStatus": {
+    "enabled": true,
+    "showDirty": true
+  }
+}
