@@ -21,7 +21,12 @@ def rename_plan_file(path, content=None):
     """Rename a single plan file. Returns new path or None if skipped."""
     path = Path(path)
 
-    if not path.exists() or os.path.islink(str(path)):
+    # If path is a symlink, unlink it so we treat the content as a fresh file
+    if os.path.islink(str(path)):
+        os.unlink(str(path))
+        return None
+
+    if not path.exists():
         return None
 
     basename = path.name
@@ -67,32 +72,27 @@ def rename_plan_file(path, content=None):
         return None
 
     os.rename(str(path), str(new_path))
-
-    # Try to keep original path accessible so Claude can still reference it.
-    # symlink requires Developer Mode on Windows; fall back to hard link; silently skip if both fail.
-    try:
-        os.symlink(new_path.name, str(path))
-    except (OSError, NotImplementedError):
-        try:
-            os.link(str(new_path), str(path))
-        except (OSError, NotImplementedError):
-            pass
-
     return new_path
 
 
 def handle_post_tool_use(data):
-    """Handle PostToolUse(Write) event - rename the specific file just written."""
-    if data.get('tool_name') != 'Write':
+    """Handle PostToolUse(Write|Edit) event - rename the specific file just written/edited."""
+    tool_name = data.get('tool_name', '')
+    if tool_name not in ('Write', 'Edit'):
         return
 
     tool_input = data.get('tool_input', {})
     file_path = tool_input.get('file_path', '')
-    content = tool_input.get('content', '')
 
     path = Path(file_path)
     if '.plans' not in path.parts:
         return
+
+    # For Write: content is available directly; for Edit: read from disk after modification
+    if tool_name == 'Write':
+        content = tool_input.get('content', '')
+    else:
+        content = None  # rename_plan_file will read from disk
 
     rename_plan_file(file_path, content)
 

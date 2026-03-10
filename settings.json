@@ -1,15 +1,4 @@
 {
-  "alwaysThinkingEnabled": true,
-  "attribution": {
-    "commit": "",
-    "pr": ""
-  },
-  "effortLevel": "high",
-  "enabledPlugins": {
-    "claude-hud@claude-hud": true,
-    "example-skills@anthropic-agent-skills": true,
-    "hookify": true
-  },
   "env": {
     "ANTHROPIC_AUTH_TOKEN": "cr_ad4b194aed4b7bd1bd87f662d43128ac7defb5636b9c89aa7bd5d6464685937e",
     "ANTHROPIC_BASE_URL": "https://claudelike.online/api",
@@ -17,51 +6,11 @@
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
-  "hooks": {
-    "PermissionRequest": [
-      {
-        "hooks": [
-          {
-            "command": "powershell -ExecutionPolicy Bypass -Command \"Write-Output 'prompt'\"",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py",
-            "type": "command"
-          }
-        ],
-        "matcher": "Write"
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "command": "python -c \"open('C:/Users/Administrator/AppData/Local/Temp/hook-test.txt','a').write('STOP_FIRED\\n')\"",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "command": "C:\\Users\\Administrator\\.claude\\hooks\\claudeception-activator.cmd",
-            "type": "command"
-          }
-        ]
-      }
-    ]
+  "attribution": {
+    "commit": "",
+    "pr": ""
   },
   "includeCoAuthoredBy": false,
-  "language": "中文",
   "permissions": {
     "allow": [
       "Bash(cmd /c \"del:*)",
@@ -79,9 +28,71 @@
     ],
     "defaultMode": "default"
   },
-  "plansDirectory": ".plans",
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -ExecutionPolicy Bypass -Command \"Write-Output 'prompt'\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "C:\\Users\\Administrator\\.claude\\hooks\\claudeception-activator.cmd"
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
-    "command": "powershell -Command \"python.exe C:\\Users\\Administrator\\.claude\\hud-runner.py\"",
-    "type": "command"
-  }
+    "type": "command",
+    "command": "powershell -Command \"python.exe C:\\Users\\Administrator\\.claude\\hud-runner.py\""
+  },
+  "enabledPlugins": {
+    "claude-hud@claude-hud": true,
+    "example-skills@anthropic-agent-skills": true,
+    "hookify": true
+  },
+  "language": "中文",
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "max",
+  "plansDirectory": ".plans",
+  "skipDangerousModePermissionPrompt": true,
+  "autoUpdatesChannel": "latest"
 }
