@@ -1,7 +1,9 @@
 """PaddleOCR MCP Server - 调用 AI Studio PaddleOCR-VL API 识别图像型 PDF"""
 
+import base64
 import json
 import os
+import re
 import time
 import requests
 from fastmcp import FastMCP
@@ -63,12 +65,14 @@ def _poll_job(job_id: str, timeout: int = 600) -> str:
     raise TimeoutError(f"OCR 任务超时（>{timeout}s）")
 
 
-def _fetch_markdown(jsonl_url: str) -> str:
-    """下载结果 JSONL，拼接所有页面的 Markdown 文本"""
+def _fetch_markdown(jsonl_url: str) -> tuple[str, dict[str, str]]:
+    """下载结果 JSONL，拼接所有页面的 Markdown 文本，收集所有图片"""
     resp = requests.get(jsonl_url, timeout=60)
     resp.raise_for_status()
 
     pages = []
+    all_images: dict[str, str] = {}   # img_key -> base64 data
+
     for line in resp.text.strip().split("\n"):
         line = line.strip()
         if not line:
@@ -76,8 +80,9 @@ def _fetch_markdown(jsonl_url: str) -> str:
         result = json.loads(line)["result"]
         for res in result["layoutParsingResults"]:
             pages.append(res["markdown"]["text"])
+            all_images.update(res["markdown"].get("images", {}))
 
-    return "\n\n---\n\n".join(pages)
+    return "\n\n---\n\n".join(pages), all_images
 
 
 @mcp.tool()
@@ -94,12 +99,40 @@ def ocr_pdf(file_path: str, save_to: str = "") -> str:
     """
     job_id = _submit_job(file_path)
     jsonl_url = _poll_job(job_id)
-    markdown = _fetch_markdown(jsonl_url)
+    markdown, images = _fetch_markdown(jsonl_url)
 
     if save_to:
-        os.makedirs(os.path.dirname(os.path.abspath(save_to)), exist_ok=True)
+        save_to = os.path.abspath(save_to)
+        os.makedirs(os.path.dirname(save_to), exist_ok=True)
+
+        if images:
+            base_name = os.path.splitext(os.path.basename(save_to))[0]
+            img_dir = os.path.join(os.path.dirname(save_to), f"{base_name}_images")
+            os.makedirs(img_dir, exist_ok=True)
+
+            def replace_img(m):
+                key = m.group(1)
+                if key in images:
+                    img_path = os.path.join(img_dir, f"{key}.png")
+                    with open(img_path, "wb") as f:
+                        f.write(base64.b64decode(images[key]))
+                    rel = os.path.relpath(img_path, os.path.dirname(save_to))
+                    return f"![]({rel.replace(os.sep, '/')})"
+                return m.group(0)
+
+            markdown = re.sub(r'!\[\]\(([^)]+)\)', replace_img, markdown)
+
         with open(save_to, "w", encoding="utf-8") as f:
             f.write(markdown)
+
+    else:
+        # 无 save_to：将图片内嵌为 base64 data URI，Claude 可直接查看
+        def embed_img(m):
+            key = m.group(1)
+            if key in images:
+                return f"![](data:image/png;base64,{images[key]})"
+            return m.group(0)
+        markdown = re.sub(r'!\[\]\(([^)]+)\)', embed_img, markdown)
 
     return markdown
 

@@ -86,13 +86,12 @@
   },
   "enabledPlugins": {
     "claude-hud@claude-hud": true,
-    "example-skills@anthropic-agent-skills": true,
     "hookify": true
   },
   "language": "中文",
   "alwaysThinkingEnabled": true,
-  "effortLevel": "max",
+  "effortLevel": "high",
+  "autoUpdatesChannel": "latest",
   "plansDirectory": ".plans",
-  "skipDangerousModePermissionPrompt": true,
-  "autoUpdatesChannel": "latest"
+  "skipDangerousModePermissionPrompt": true
 }

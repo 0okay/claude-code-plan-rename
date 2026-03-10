@@ -100,7 +100,17 @@
       "Skill(claude-hud:setup)",
       "Bash(cmd:*)",
       "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:api.github.com)"
+      "WebFetch(domain:api.github.com)",
+      "Bash(sort -t: -k2 -n)",
+      "Bash(taskkill:*)",
+      "WebFetch(domain:paddlepaddle.github.io)",
+      "WebFetch(domain:www.paddleocr.ai)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:www.pulsemcp.com)",
+      "WebFetch(domain:glama.ai)",
+      "WebFetch(domain:skywork.ai)",
+      "Bash(powershell.exe:*)",
+      "Bash(cat ~/.claude/settings.json | python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('skills', d.get\\('skillsDir', d.get\\('skillPaths', 'not found'\\)\\)\\), indent=2, ensure_ascii=False\\)\\)\" 2>/dev/null || echo \"无 skills 配置项\")"
     ]
   }
 }

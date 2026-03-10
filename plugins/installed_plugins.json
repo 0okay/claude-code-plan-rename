@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "plugins": {
+    "document-skills@anthropic-agent-skills": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\Administrator\\.claude\\plugins\\cache\\anthropic-agent-skills\\document-skills\\3d5951151859",
+        "version": "3d5951151859",
+        "installedAt": "2025-10-31T03:40:05.547Z",
+        "lastUpdated": "2026-02-26T09:55:42.318Z",
+        "gitCommitSha": "c74d647e56e6daa12029b6acb11a821348ad044b"
+      }
+    ],
+    "claude-hud@claude-hud": [
+      {
+        "scope": "user",
+        "installPath": "C:\\Users\\Administrator\\.claude\\plugins\\cache\\claude-hud\\claude-hud\\0.0.9",
+        "version": "0.0.9",
+        "installedAt": "2026-01-04T06:01:19.720Z",
+        "lastUpdated": "2026-03-09T00:00:00.000Z"
+      }
+    ]
+  }
+}

@@ -21,10 +21,18 @@ def rename_plan_file(path, content=None):
     """Rename a single plan file. Returns new path or None if skipped."""
     path = Path(path)
 
-    # If path is a symlink, unlink it so we treat the content as a fresh file
+    # If path is a symlink: check if target still exists
+    # - Valid symlink: content was already written to target via symlink, nothing to rename
+    # - Stale symlink: target gone, remove it and return
     if os.path.islink(str(path)):
-        os.unlink(str(path))
-        return None
+        target = Path(os.readlink(str(path)))
+        if not target.is_absolute():
+            target = path.parent / target
+        if target.exists():
+            return target  # Symlink valid, VS Code can still open original path
+        else:
+            os.unlink(str(path))  # Stale symlink, clean up
+            return None
 
     if not path.exists():
         return None
@@ -72,6 +80,13 @@ def rename_plan_file(path, content=None):
         return None
 
     os.rename(str(path), str(new_path))
+
+    # Create symlink at original path so VS Code extension can open plan by original name
+    try:
+        os.symlink(str(new_path.resolve()), str(path))
+    except OSError:
+        pass  # Symlink creation is best-effort (may fail on some Windows configs)
+
     return new_path
 
 
