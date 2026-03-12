@@ -12,9 +12,16 @@ Triggered by:
 - PostToolUse(Write): when Claude explicitly writes a plan file
 - Stop: scans cwd/.plans/ for any unprocessed random-named files
 """
-import json, sys, os, re
+import json, sys, io, os, re
 from pathlib import Path
 from datetime import date
+
+# Windows stdin 默认使用系统代码页(GBK)，但 Claude Code 传入的是 UTF-8 JSON
+# 强制将 stdin 切换为 UTF-8 解码
+if hasattr(sys.stdin, 'reconfigure'):
+    sys.stdin.reconfigure(encoding='utf-8')
+elif hasattr(sys.stdin, 'buffer'):
+    sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
 
 
 def rename_plan_file(path, content=None):
@@ -82,8 +89,9 @@ def rename_plan_file(path, content=None):
     os.rename(str(path), str(new_path))
 
     # Create symlink at original path so VS Code extension can open plan by original name
+    # 使用相对路径（仅文件名），避免 MSYS/Windows 路径格式不一致问题
     try:
-        os.symlink(str(new_path.resolve()), str(path))
+        os.symlink(new_path.name, str(path))
     except OSError:
         pass  # Symlink creation is best-effort (may fail on some Windows configs)
 
