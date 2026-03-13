@@ -15,7 +15,7 @@ export function renderIdentityLine(ctx) {
     const contextValueDisplay = `${getContextColor(percent)}${contextValue}${RESET}`;
     let line = display?.showContextBar !== false
         ? ringBar(percent)
-        : ringBar(percent);
+        : contextValueDisplay;
     if (display?.showTokenBreakdown !== false && percent >= 85) {
         const usage = ctx.stdin.context_window?.current_usage;
         if (usage) {
@@ -23,9 +23,6 @@ export function renderIdentityLine(ctx) {
             const cache = formatTokens((usage.cache_creation_input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0));
             line += dim(` (in: ${input}, cache: ${cache})`);
         }
-    }
-    if (display?.showDuration !== false && ctx.sessionDuration) {
-        line += dim(` │ ⏱️  ${ctx.sessionDuration}`);
     }
     return line;
 }

@@ -28,6 +28,7 @@
     ],
     "defaultMode": "default"
   },
+  "model": "opus",
   "hooks": {
     "PermissionRequest": [
       {
@@ -48,15 +49,6 @@
             "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
           }
         ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
-          }
-        ]
       }
     ],
     "Stop": [
@@ -64,7 +56,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python C:/Users/Administrator/.claude/hooks/plan-rename.py"
+            "command": "python -c \"open('C:/Users/Administrator/AppData/Local/Temp/hook-test.txt','a').write('STOP_FIRED\\n')\""
           }
         ]
       }
@@ -82,16 +74,16 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "powershell -Command \"python.exe C:\\Users\\Administrator\\.claude\\hud-runner.py\""
+    "command": "bash -c 'COLUMNS=$(tput cols 2>/dev/null || echo 80) \"/c/Users/Administrator/.bun/bin/bun\" \"$(ls -d ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | sort -V -r | head -1)src/index.ts\"'"
   },
   "enabledPlugins": {
     "claude-hud@claude-hud": true,
+    "example-skills@anthropic-agent-skills": true,
     "hookify": true
   },
   "language": "中文",
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
-  "autoUpdatesChannel": "latest",
   "plansDirectory": ".plans",
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "effortLevel": "high"
 }
