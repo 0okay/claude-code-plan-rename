@@ -4,7 +4,8 @@
     "ANTHROPIC_BASE_URL": "https://claudelike.online/api",
     "API_TIMEOUT_MS": "3000000",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "MINERU_API_KEY": "eyJ0eXBlIjoiSldUIiwiYWxnIjoiSFM1MTIifQ.eyJqdGkiOiIyODkwMDk1MSIsInJvbCI6IlJPTEVfUkVHSVNURVIiLCJpc3MiOiJPcGVuWExhYiIsImlhdCI6MTc3MjY5OTI1NSwiY2xpZW50SWQiOiJsa3pkeDU3bnZ5MjJqa3BxOXgydyIsInBob25lIjoiIiwib3BlbklkIjpudWxsLCJ1dWlkIjoiY2UwZDYyMTgtYzU1NC00NWJhLTg2ZjktY2Y4NzA0ZmE1NDJkIiwiZW1haWwiOiIiLCJleHAiOjE3ODA0NzUyNTV9.K4Ca9vHlVvUtqa5hrh0xzAUHnT9XxOUgXrTZkgnb3U2urvnD4HLu2LgrGAUkFh76NRfs5cvSd1zMQRDwhkxnwQ"
   },
   "attribution": {
     "commit": "",
@@ -28,14 +29,15 @@
     ],
     "defaultMode": "default"
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "hooks": {
-    "PermissionRequest": [
+    "PreToolUse": [
       {
+        "matcher": "Write",
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -ExecutionPolicy Bypass -Command \"Write-Output 'prompt'\""
+            "command": "python C:/Users/Administrator/.claude/hooks/plan-archive-before-overwrite.py"
           }
         ]
       }
@@ -79,11 +81,18 @@
   "enabledPlugins": {
     "claude-hud@claude-hud": true,
     "example-skills@anthropic-agent-skills": true,
-    "hookify": true
+    "hookify": true,
+    "commit-commands@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "greptile@claude-plugins-official": false,
+    "hookify@claude-plugins-official": false,
+    "document-skills@anthropic-agent-skills": true,
+    "plannotator@plannotator": true
   },
   "language": "中文",
   "alwaysThinkingEnabled": true,
   "plansDirectory": ".plans",
   "skipDangerousModePermissionPrompt": true,
-  "effortLevel": "high"
+  "effortLevel": "max"
 }
