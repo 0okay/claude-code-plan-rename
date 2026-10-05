@@ -34,12 +34,23 @@ basename = path.name
 if not re.match(r'^[a-z]+(-[a-z]+){2}\.md$', basename):
     sys.exit(0)
 
-# Skip if already a symlink or hardlink-renamed (idempotent)
+# A symlink already identifies a renamed plan.
 if os.path.islink(file_path):
     sys.exit(0)
 
 if not os.path.exists(file_path):
     sys.exit(0)
+
+# A hard-link fallback is not a symlink. Recognize an existing semantic
+# alias by file identity, not just link count (unrelated links may exist).
+for sibling in path.parent.glob('*-v*.md'):
+    if sibling == path or not re.search(r'-v\d+\.md$', sibling.name):
+        continue
+    try:
+        if path.samefile(sibling):
+            sys.exit(0)
+    except OSError:
+        continue
 
 # Extract first H1 heading from content
 title = None
